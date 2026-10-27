@@ -117,6 +117,17 @@
   .login-box label { text-align:left; }
   .login-box input { margin-bottom:14px; }
   .login-box .btn { width:100%; justify-content:center; padding:12px; }
+  .login-step[hidden] { display:none; }
+  .login-roles { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:4px 0 18px; }
+  .login-role { background:#fff; color:var(--azul); border:2px solid var(--azul-borde); border-radius:10px; padding:16px 10px; cursor:pointer; font:inherit; font-weight:600; }
+  .login-role:hover, .login-role.selected { background:var(--azul-suave); border-color:var(--azul); }
+  .login-role span { display:block; font-size:24px; margin-bottom:4px; }
+  .login-step-actions { display:flex; gap:8px; margin-top:4px; }
+  .login-step-actions .btn { flex:1; }
+  .login-step-actions .btn-outline { background:#fff; color:var(--azul); }
+  .login-progress { color:var(--gris-suave); font-size:12px; margin:-12px 0 18px; }
+  .login-forgot { display:block; margin:14px auto 0; padding:4px; border:0; background:transparent; color:var(--azul); cursor:pointer; font:inherit; font-size:13px; text-decoration:underline; }
+  .login-recovery-card { padding:14px; margin:8px 0 14px; border:1px solid var(--azul-borde); border-radius:10px; background:var(--azul-suave); color:var(--gris-texto); font-size:13px; line-height:1.55; text-align:left; }
   .login-error { background:#fee2e2; color:#b91c1c; padding:10px; border-radius:8px; font-size:13px; margin-bottom:14px; display:none; }
   .login-error.show { display:block; }
   .login-hint { font-size:11px; color:var(--gris-suave); margin-top:16px; line-height:1.6; text-align:left; background:var(--azul-suave); padding:10px; border-radius:8px; }
@@ -167,17 +178,53 @@
   <div class="login-box">
     <div class="logo-icon">S</div>
     <h1>SAMKITS</h1>
-    <p>Ingresa para continuar</p>
+    <p>Inicia sesión para continuar</p>
     <div class="login-error" id="login-error"></div>
-    <label>Usuario</label>
-    <input id="login-user" placeholder="Ej: admin o vendedor" autocomplete="username">
-    <label>Contraseña</label>
-    <input id="login-pass" type="password" placeholder="••••••" autocomplete="current-password" onkeypress="if(event.key==='Enter')login()">
-    <button class="btn" onclick="login()">Ingresar</button>
-    <div class="login-hint">
-      <strong>Usuarios demo:</strong><br>
-      Admin → usuario: <b>admin</b> / contraseña: <b>admin123</b><br>
-      Vendedor → usuario: <b>vendedor</b> / contraseña: <b>vendedor123</b>
+    <div class="login-step" id="login-step-role">
+      <div class="login-progress">Paso 1 de 3</div>
+      <p>¿Con qué perfil deseas ingresar?</p>
+      <div class="login-roles">
+        <button type="button" class="login-role" data-login-role="admin" onclick="seleccionarRolLogin('admin')"><span>🛡️</span>Administrador</button>
+        <button type="button" class="login-role" data-login-role="vendedor" onclick="seleccionarRolLogin('vendedor')"><span>🛍️</span>Vendedor</button>
+      </div>
+      <button type="button" class="login-forgot" onclick="abrirRecuperacionLogin()">¿Olvidaste tu contraseña?</button>
+    </div>
+    <div class="login-step" id="login-step-name" hidden>
+      <div class="login-progress">Paso 2 de 3 · <span id="login-role-label"></span></div>
+      <label for="login-name">Nombre que aparecerá en el sistema</label>
+      <input id="login-name" placeholder="Escribe tu nombre" autocomplete="name" onkeydown="if(event.key==='Enter'){event.preventDefault();avanzarCredencialesLogin()}">
+      <div class="login-step-actions">
+        <button type="button" class="btn btn-outline" onclick="volverRolLogin()">Volver</button>
+        <button type="button" class="btn" onclick="avanzarCredencialesLogin()">Continuar</button>
+      </div>
+    </div>
+    <div class="login-step" id="login-step-recovery" hidden>
+      <div class="login-progress">Recuperación de acceso</div>
+      <p>¿Qué perfil necesita recuperar el acceso?</p>
+      <div class="login-roles">
+        <button type="button" class="login-role" data-recovery-role="admin" onclick="mostrarAyudaRecuperacion('admin')"><span>🛡️</span>Administrador</button>
+        <button type="button" class="login-role" data-recovery-role="vendedor" onclick="mostrarAyudaRecuperacion('vendedor')"><span>🛍️</span>Vendedor</button>
+      </div>
+      <div class="login-recovery-card" id="login-recovery-message" hidden aria-live="polite"></div>
+      <div class="login-step-actions">
+        <button type="button" class="btn btn-outline" onclick="cerrarRecuperacionLogin()">Volver al inicio</button>
+      </div>
+    </div>
+    <div class="login-step" id="login-step-credentials" hidden>
+      <div class="login-progress">Paso 3 de 3 · <span id="login-identity-label"></span></div>
+      <label for="login-user">Usuario</label>
+      <input id="login-user" placeholder="Usuario de acceso" autocomplete="username">
+      <label for="login-pass">Contraseña</label>
+      <input id="login-pass" type="password" placeholder="••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+      <div class="login-step-actions">
+        <button type="button" class="btn btn-outline" onclick="volverNombreLogin()">Volver</button>
+        <button type="button" class="btn" onclick="login()">Ingresar</button>
+      </div>
+      <div class="login-hint">
+        <strong>Usuarios demo:</strong><br>
+        Administrador → <b>admin</b> / <b>admin123</b><br>
+        Vendedor → <b>vendedor</b> / <b>vendedor123</b>
+      </div>
     </div>
   </div>
 </div>
@@ -198,6 +245,7 @@
     </button>
     <div class="user-badge">
       👤 <span id="user-name">Admin</span> · <span id="user-role">admin</span>
+      <button class="btn btn-sm btn-outline" id="admin-password-btn" onclick="abrirGestionContrasenas()" style="display:none; margin-left:8px;">Contraseñas</button>
       <button class="btn btn-sm btn-outline" onclick="logout()" style="margin-left:8px;">Salir</button>
     </div>
   </div>
@@ -581,11 +629,33 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-contrasenas">
+  <div class="modal">
+    <button class="close-btn" onclick="cerrarGestionContrasenas()">×</button>
+    <h3>Cambiar contraseña</h3>
+    <p class="sub">Disponible solo para el administrador. Esta versión guarda las contraseñas en este navegador; no se sincronizan entre dispositivos.</p>
+    <label for="cuenta-contrasena">Perfil de la cuenta</label>
+    <select id="cuenta-contrasena">
+      <option value="vendedor">Vendedor</option>
+      <option value="admin">Administrador</option>
+    </select>
+    <label for="nueva-contrasena" style="margin-top:12px;">Nueva contraseña (mínimo 8 caracteres)</label>
+    <input id="nueva-contrasena" type="password" autocomplete="new-password">
+    <label for="confirmar-contrasena" style="margin-top:12px;">Confirmar contraseña</label>
+    <input id="confirmar-contrasena" type="password" autocomplete="new-password" onkeydown="if(event.key==='Enter')guardarContrasena()">
+    <div id="msg-contrasena" class="msg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="cerrarGestionContrasenas()">Cancelar</button>
+      <button class="btn" onclick="guardarContrasena()">Guardar contraseña</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 /* ================== USUARIOS Y SESIÓN ================== */
-const USUARIOS = [
+const USUARIOS_BASE = [
   { user: 'admin', pass: 'admin123', nombre: 'Administrador', rol: 'admin' },
   { user: 'vendedor', pass: 'vendedor123', nombre: 'Vendedor', rol: 'vendedor' }
 ];
@@ -601,6 +671,14 @@ function safeParseLocalStorage(key, fallback) {
     return fallback;
   }
 }
+
+const usuariosGuardados = safeParseLocalStorage('samkits_usuarios', []);
+const USUARIOS = USUARIOS_BASE.map(cuenta => {
+  const guardada = Array.isArray(usuariosGuardados)
+    ? usuariosGuardados.find(usuario => usuario.user === cuenta.user && typeof usuario.pass === 'string' && usuario.pass.length >= 8)
+    : null;
+  return { ...cuenta, pass: guardada ? guardada.pass : cuenta.pass };
+});
 
 function nextId(list) {
   const max = Array.isArray(list) && list.length
@@ -648,14 +726,85 @@ function toast(msg, tipo='ok') {
 }
 
 /* ================== LOGIN ================== */
+let rolLoginSeleccionado = null;
+let nombreLogin = '';
+
+function mostrarPasoLogin(paso) {
+  document.querySelectorAll('.login-step').forEach(el => {
+    el.hidden = el.id !== `login-step-${paso}`;
+  });
+  document.getElementById('login-error').classList.remove('show');
+}
+function seleccionarRolLogin(rol) {
+  if (!['admin', 'vendedor'].includes(rol)) return;
+  rolLoginSeleccionado = rol;
+  document.querySelectorAll('[data-login-role]').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.loginRole === rol);
+  });
+  document.getElementById('login-role-label').textContent = rol === 'admin' ? 'Administrador' : 'Vendedor';
+  mostrarPasoLogin('name');
+  document.getElementById('login-name').focus();
+}
+function volverRolLogin() {
+  mostrarPasoLogin('role');
+}
+function abrirRecuperacionLogin() {
+  document.getElementById('login-recovery-message').hidden = true;
+  document.getElementById('login-recovery-message').textContent = '';
+  document.querySelectorAll('[data-recovery-role]').forEach(btn => btn.classList.remove('selected'));
+  mostrarPasoLogin('recovery');
+}
+function cerrarRecuperacionLogin() {
+  mostrarPasoLogin('role');
+}
+function mostrarAyudaRecuperacion(rol) {
+  if (!['admin', 'vendedor'].includes(rol)) return;
+  document.querySelectorAll('[data-recovery-role]').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.recoveryRole === rol);
+  });
+  const message = document.getElementById('login-recovery-message');
+  message.textContent = rol === 'vendedor'
+    ? 'Para proteger la cuenta, la contraseña del vendedor debe ser restablecida por el administrador del negocio. Pídele al administrador que ingrese al sistema y use la opción “Contraseñas”.'
+    : 'La cuenta de administrador no puede recuperarse desde el inicio de sesión. Como este sistema guarda las cuentas localmente y no tiene verificación por correo o servidor, contacta al responsable autorizado del sistema para validar la identidad y recuperar el acceso sin exponer la cuenta.';
+  message.hidden = false;
+}
+function avanzarCredencialesLogin() {
+  const nombre = document.getElementById('login-name').value.trim();
+  const err = document.getElementById('login-error');
+  if (!rolLoginSeleccionado) {
+    mostrarPasoLogin('role');
+    err.textContent = 'Selecciona primero un perfil';
+    err.classList.add('show');
+    return;
+  }
+  if (!nombre) {
+    err.textContent = 'Escribe tu nombre para continuar';
+    err.classList.add('show');
+    document.getElementById('login-name').focus();
+    return;
+  }
+  nombreLogin = nombre;
+  document.getElementById('login-identity-label').textContent =
+    `${nombreLogin} · ${rolLoginSeleccionado === 'admin' ? 'Administrador' : 'Vendedor'}`;
+  mostrarPasoLogin('credentials');
+  document.getElementById('login-user').focus();
+}
+function volverNombreLogin() {
+  mostrarPasoLogin('name');
+  document.getElementById('login-name').focus();
+}
 function login() {
   const user = document.getElementById('login-user').value.trim().toLowerCase();
   const pass = document.getElementById('login-pass').value;
   const err = document.getElementById('login-error');
-  const found = USUARIOS.find(u => u.user === user && u.pass === pass);
-  if (!found) { err.textContent = 'Usuario o contraseña incorrectos'; err.classList.add('show'); return; }
+  const found = USUARIOS.find(u => u.user === user && u.pass === pass && u.rol === rolLoginSeleccionado);
+  if (!found) {
+    err.textContent = 'Las credenciales no corresponden al perfil seleccionado';
+    err.classList.add('show');
+    return;
+  }
   err.classList.remove('show');
-  sesion = { user: found.user, nombre: found.nombre, rol: found.rol };
+  sesion = { user: found.user, nombre: nombreLogin, rol: found.rol };
   localStorage.setItem('samkits_sesion', JSON.stringify(sesion));
   iniciarApp();
 }
@@ -667,6 +816,11 @@ function logout() {
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+  document.getElementById('login-name').value = '';
+  nombreLogin = '';
+  rolLoginSeleccionado = null;
+  document.querySelectorAll('[data-login-role]').forEach(btn => btn.classList.remove('selected'));
+  mostrarPasoLogin('role');
   document.getElementById('login-error').classList.remove('show');
 }
 function iniciarApp() {
@@ -675,6 +829,7 @@ function iniciarApp() {
   document.getElementById('user-name').textContent = sesion.nombre;
   document.getElementById('user-role').textContent = sesion.rol;
   const esAdmin = sesion.rol === 'admin';
+  document.getElementById('admin-password-btn').style.display = esAdmin ? '' : 'none';
   document.querySelectorAll('.admin-only').forEach(el => el.style.display = esAdmin ? '' : 'none');
   if (esAdmin) {
     showTab('dashboard', document.querySelector('[data-tab="dashboard"]'));
@@ -684,6 +839,58 @@ function iniciarApp() {
   }
   renderTodo();
   renderNotificaciones();
+}
+function abrirGestionContrasenas() {
+  if (sesion?.rol !== 'admin') return toast('Solo el administrador puede cambiar contraseñas', 'error');
+  document.getElementById('nueva-contrasena').value = '';
+  document.getElementById('confirmar-contrasena').value = '';
+  document.getElementById('msg-contrasena').className = 'msg';
+  document.getElementById('msg-contrasena').textContent = '';
+  document.getElementById('modal-contrasenas').classList.add('show');
+}
+function cerrarGestionContrasenas() {
+  document.getElementById('modal-contrasenas').classList.remove('show');
+}
+function guardarContrasena() {
+  if (sesion?.rol !== 'admin') return toast('Solo el administrador puede cambiar contraseñas', 'error');
+  const rol = document.getElementById('cuenta-contrasena').value;
+  const nueva = document.getElementById('nueva-contrasena').value;
+  const confirmar = document.getElementById('confirmar-contrasena').value;
+  const msg = document.getElementById('msg-contrasena');
+  if (!['admin', 'vendedor'].includes(rol)) {
+    msg.className = 'msg msg-err';
+    msg.textContent = 'Selecciona un perfil válido';
+    return;
+  }
+  if (nueva.length < 8) {
+    msg.className = 'msg msg-err';
+    msg.textContent = 'La contraseña debe tener al menos 8 caracteres';
+    return;
+  }
+  if (nueva !== confirmar) {
+    msg.className = 'msg msg-err';
+    msg.textContent = 'Las contraseñas no coinciden';
+    return;
+  }
+  const cuenta = USUARIOS.find(usuario => usuario.rol === rol);
+  if (!cuenta) {
+    msg.className = 'msg msg-err';
+    msg.textContent = 'No se encontró la cuenta seleccionada';
+    return;
+  }
+  cuenta.pass = nueva;
+  try {
+    localStorage.setItem('samkits_usuarios', JSON.stringify(USUARIOS));
+  } catch (error) {
+    console.error('No se pudo guardar la nueva contraseña:', error);
+    msg.className = 'msg msg-err';
+    msg.textContent = 'No se pudo guardar la contraseña en este navegador';
+    return;
+  }
+  msg.className = 'msg msg-ok';
+  msg.textContent = 'Contraseña actualizada correctamente';
+  document.getElementById('nueva-contrasena').value = '';
+  document.getElementById('confirmar-contrasena').value = '';
 }
 function showTab(id, btn) {
   const esAdmin = sesion?.rol === 'admin';
@@ -1736,7 +1943,7 @@ document.addEventListener('click', (e) => {
 if (sesion) { iniciarApp(); }
 else {
   document.getElementById('login-screen').style.display = 'flex';
-  setTimeout(() => document.getElementById('login-user').focus(), 100);
+  mostrarPasoLogin('role');
 }
 </script>
 </body>
