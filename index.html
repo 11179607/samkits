@@ -589,30 +589,55 @@ const USUARIOS = [
   { user: 'admin', pass: 'admin123', nombre: 'Administrador', rol: 'admin' },
   { user: 'vendedor', pass: 'vendedor123', nombre: 'Vendedor', rol: 'vendedor' }
 ];
-let sesion = JSON.parse(localStorage.getItem('samkits_sesion') || 'null');
+function safeParseLocalStorage(key, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved === null || saved === '') return fallback;
+    const parsed = JSON.parse(saved);
+    return parsed ?? fallback;
+  } catch (error) {
+    console.warn('Datos inválidos en localStorage:', key, error);
+    localStorage.removeItem(key);
+    return fallback;
+  }
+}
+
+function nextId(list) {
+  const max = Array.isArray(list) && list.length
+    ? list.reduce((m, item) => Math.max(m, Number(item && item.id) || 0), 0)
+    : 0;
+  return Date.now() + Math.floor(Math.random() * 1000) + max + 1;
+}
+
+let sesion = safeParseLocalStorage('samkits_sesion', null);
 
 /* ================== DATA ================== */
-let productos = JSON.parse(localStorage.getItem('samkits_productos') || '[]');
-let movimientos = JSON.parse(localStorage.getItem('samkits_movimientos') || '[]');
-let ventas = JSON.parse(localStorage.getItem('samkits_ventas') || '[]');
-let fiados = JSON.parse(localStorage.getItem('samkits_fiados') || '[]');
-let garantias = JSON.parse(localStorage.getItem('samkits_garantias') || '[]');
-let proveedores = JSON.parse(localStorage.getItem('samkits_proveedores') || '[]');
-let deudas = JSON.parse(localStorage.getItem('samkits_deudas') || '[]');
-let abonosPendientes = JSON.parse(localStorage.getItem('samkits_abonos_pendientes') || '[]');
+let productos = safeParseLocalStorage('samkits_productos', []);
+let movimientos = safeParseLocalStorage('samkits_movimientos', []);
+let ventas = safeParseLocalStorage('samkits_ventas', []);
+let fiados = safeParseLocalStorage('samkits_fiados', []);
+let garantias = safeParseLocalStorage('samkits_garantias', []);
+let proveedores = safeParseLocalStorage('samkits_proveedores', []);
+let deudas = safeParseLocalStorage('samkits_deudas', []);
+let abonosPendientes = safeParseLocalStorage('samkits_abonos_pendientes', []);
 let carrito = [];
 let editandoId = null, editandoProvId = null, ventaSeleccionada = null;
 let chartVentasInstance = null, chartTopInstance = null;
 
 function guardar() {
-  localStorage.setItem('samkits_productos', JSON.stringify(productos));
-  localStorage.setItem('samkits_movimientos', JSON.stringify(movimientos));
-  localStorage.setItem('samkits_ventas', JSON.stringify(ventas));
-  localStorage.setItem('samkits_fiados', JSON.stringify(fiados));
-  localStorage.setItem('samkits_garantias', JSON.stringify(garantias));
-  localStorage.setItem('samkits_proveedores', JSON.stringify(proveedores));
-  localStorage.setItem('samkits_deudas', JSON.stringify(deudas));
-  localStorage.setItem('samkits_abonos_pendientes', JSON.stringify(abonosPendientes));
+  try {
+    localStorage.setItem('samkits_productos', JSON.stringify(productos));
+    localStorage.setItem('samkits_movimientos', JSON.stringify(movimientos));
+    localStorage.setItem('samkits_ventas', JSON.stringify(ventas));
+    localStorage.setItem('samkits_fiados', JSON.stringify(fiados));
+    localStorage.setItem('samkits_garantias', JSON.stringify(garantias));
+    localStorage.setItem('samkits_proveedores', JSON.stringify(proveedores));
+    localStorage.setItem('samkits_deudas', JSON.stringify(deudas));
+    localStorage.setItem('samkits_abonos_pendientes', JSON.stringify(abonosPendientes));
+  } catch (error) {
+    console.error('No se pudo guardar en localStorage:', error);
+    toast('No se pudo guardar el estado local', 'error');
+  }
 }
 
 function toast(msg, tipo='ok') {
@@ -705,7 +730,7 @@ function guardarProducto() {
     minimo: +document.getElementById('p-minimo').value || 0
   };
   if (editandoId) Object.assign(productos.find(x => x.id === editandoId), data);
-  else productos.push({ id: Date.now(), ...data });
+  else productos.push({ id: nextId(productos), ...data });
   guardar(); cancelarEdicion(); renderProductos(); renderSelects(); renderNotificaciones();
   msg.className='msg msg-ok'; msg.textContent='Producto guardado correctamente';
   setTimeout(()=> msg.className='msg', 2500);
@@ -783,7 +808,7 @@ function registrarMovimiento() {
     if (p.stock < cantidad) { msg.className='msg msg-err'; msg.textContent='Stock insuficiente (disponible: '+p.stock+')'; return; }
     p.stock -= cantidad;
   } else if (tipo === 'ajuste') p.stock = cantidad;
-  movimientos.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), producto: p.nombre, tipo, cantidad, motivo });
+  movimientos.unshift({ id: nextId(movimientos), fecha: new Date().toLocaleString(), producto: p.nombre, tipo, cantidad, motivo });
   guardar(); renderMovimientos(); renderSelects(); renderDashboard(); renderNotificaciones();
   msg.className='msg msg-ok'; msg.textContent='Movimiento registrado';
   setTimeout(()=> msg.className='msg', 2500);
@@ -873,7 +898,7 @@ function finalizarVenta() {
   }
 
   carrito.forEach(c => { const p = productos.find(x => x.id === c.id); if (p) p.stock -= c.cantidad; });
-  const ventaId = ventas.length+1;
+  const ventaId = nextId(ventas);
   const ventaObj = {
     id: ventaId, fecha: new Date().toLocaleString(), items: carrito.length,
     detalle: [...carrito], total: totalFinal, tipo: esFiado ? 'fiado' : 'contado',
@@ -884,7 +909,7 @@ function finalizarVenta() {
 
   if (esFiado) {
     fiados.unshift({
-      id: Date.now(), cliente, telefono, fechaLimite,
+      id: nextId(fiados), cliente, telefono, fechaLimite,
       fecha: new Date().toLocaleString(), detalle: [...carrito],
       subtotal: totalFinal - interesMonto,
       interesPct: pctInteres, interesMonto,
@@ -916,6 +941,7 @@ function finalizarVenta() {
 
 /* RECIBO */
 function mostrarRecibo(v) {
+  if (!v || !v.detalle) return;
   const itemsHtml = v.detalle.map(d => 
     `<div class="line"><span>${d.nombre} x${d.cantidad}</span><span>$${(d.cantidad*d.precio).toLocaleString()}</span></div>`
   ).join('');
@@ -940,6 +966,56 @@ function mostrarRecibo(v) {
     </div>`;
   document.getElementById('recibo-modal').classList.add('show');
 }
+function mostrarReciboPorId(id) {
+  const v = ventas.find(x => x.id === id);
+  if (!v) {
+    toast('No se encontró la venta', 'error');
+    return;
+  }
+  mostrarRecibo(v);
+}
+function mostrarReciboPago(abono, fiado) {
+  if (!abono) return;
+  const f = fiado || fiados.find(x => x.id === abono.fiadoId) || null;
+  const totalCuotas = Math.max(1, Number(f?.cuotas) || 1);
+  const valorCuota = f?.valorCuota || Math.ceil((f?.total || abono.monto) / totalCuotas);
+  const montoYaPagado = f ? (f.total - f.saldo) : 0;
+  const montoConEsteCobro = abono.estado === 'confirmado'
+    ? montoYaPagado + abono.monto
+    : montoYaPagado + abono.monto;
+  const cuotasPagadas = Math.min(totalCuotas, Math.max(0, Math.round(montoConEsteCobro / valorCuota)));
+  const cuotasRestantes = Math.max(0, totalCuotas - cuotasPagadas);
+  const cuotaTexto = cuotasRestantes === 0
+    ? 'Pago completado'
+    : `${cuotasPagadas}/${totalCuotas} · ${cuotasRestantes} falta${cuotasRestantes > 1 ? 'n' : ''}`;
+
+  const saldoAntes = f ? (f.saldo + abono.monto) : 0;
+  const saldoDespues = f ? f.saldo : 0;
+  const estadoColor = abono.estado === 'confirmado' ? 'var(--verde)' : abono.estado === 'rechazado' ? 'var(--rojo)' : 'var(--ambar)';
+  const estadoTexto = abono.estado === 'confirmado' ? 'CONFIRMADO' : abono.estado === 'rechazado' ? 'RECHAZADO' : 'PENDIENTE';
+
+  document.getElementById('recibo-print').innerHTML = `
+    <div class="recibo">
+      <h3>SAMKITS</h3>
+      <div class="sub">Recibo de cobro · Cuota/abono</div>
+      <hr>
+      <div class="line"><span>Recibo #:</span><span>${abono.id}</span></div>
+      <div class="line"><span>Fecha:</span><span>${abono.fecha}</span></div>
+      <div class="line"><span>Cliente:</span><span>${abono.cliente}</span></div>
+      <div class="line"><span>Registró:</span><span>${abono.registradoPor || 'N/A'}</span></div>
+      ${f ? `<div class="line"><span>Fiado #:</span><span>${f.id}</span></div>` : ''}
+      <hr>
+      <div class="line"><span>Monto cobrado:</span><span>$${abono.monto.toLocaleString()}</span></div>
+      <div class="line"><span>Valor cuota:</span><span>$${valorCuota.toLocaleString()}</span></div>
+      <div class="line"><span>Saldo antes:</span><span>$${saldoAntes.toLocaleString()}</span></div>
+      <div class="line"><span>Saldo después:</span><span>$${saldoDespues.toLocaleString()}</span></div>
+      <div class="line"><span>Cuotas:</span><span style="color:${estadoColor}; font-weight:700;">${cuotaTexto}</span></div>
+      <div class="line"><span>Estado:</span><span style="color:${estadoColor}; font-weight:700;">${estadoTexto}</span></div>
+      <hr>
+      <div class="center">Comprobante de cobro.<br>Este documento puede imprimirse y entregarse al cliente.</div>
+    </div>`;
+  document.getElementById('recibo-modal').classList.add('show');
+}
 function cerrarRecibo() { document.getElementById('recibo-modal').classList.remove('show'); }
 function imprimirRecibo() { window.print(); }
 
@@ -954,7 +1030,7 @@ function renderVentas() {
     </td>
     <td><span class="badge ${v.tipo==='fiado'?'badge-warn':'badge-ok'}">${v.tipo||'contado'}</span></td>
     <td class="acciones-cell">
-      <button class="btn btn-outline btn-sm" onclick='mostrarRecibo(${JSON.stringify(v).replace(/'/g,"&#39;")})'>🖨️ Recibo</button>
+      <button class="btn btn-outline btn-sm" onclick="mostrarReciboPorId(${v.id})">🖨️ Recibo</button>
       ${esAdmin ? `<button class="btn btn-morado btn-sm" onclick="irGarantia(${v.id})">Garantía</button>` : ''}
     </td>
     </tr>`).join('') || '<tr><td colspan="8" class="empty-state">Sin ventas registradas</td></tr>';
@@ -983,16 +1059,20 @@ function abrirAbono(id) {
     if (!ok) return;
   }
 
-  abonosPendientes.unshift({
-    id: Date.now(), fiadoId: f.id, cliente: f.cliente, monto,
+  const nuevoAbono = {
+    id: nextId(abonosPendientes), fiadoId: f.id, cliente: f.cliente, monto,
     valorCuotaEsperado: valorCuota, fecha: new Date().toLocaleString(),
     registradoPor: sesion?.nombre || 'N/A', rolRegistro: sesion?.rol || 'vendedor',
     estado: 'pendiente'
-  });
+  };
+
+  abonosPendientes.unshift(nuevoAbono);
 
   guardar();
   renderAbonosPendientes(); renderMisCobros(); renderFiadosVendedor(); renderDashboard(); renderNotificaciones();
   if (sesion?.rol === 'admin') renderFiados();
+
+  mostrarReciboPago(nuevoAbono, f);
 
   if (sesion?.rol === 'admin') toast('Cobro registrado ✔');
   else toast('Cobro registrado · Pendiente de confirmación ⏳', 'warn');
@@ -1008,6 +1088,7 @@ function confirmarAbono(abonoId) {
   a.estado = 'confirmado'; a.confirmadoPor = sesion.nombre; a.fechaConfirmacion = new Date().toLocaleString();
   guardar();
   renderFiados(); renderAbonosPendientes(); renderMisCobros(); renderFiadosVendedor(); renderDashboard(); renderNotificaciones();
+  mostrarReciboPago(a, f);
   toast('Abono confirmado ✔');
 }
 function rechazarAbono(abonoId) {
@@ -1017,6 +1098,7 @@ function rechazarAbono(abonoId) {
   a.estado = 'rechazado'; a.rechazadoPor = sesion.nombre; a.fechaRechazo = new Date().toLocaleString();
   guardar();
   renderAbonosPendientes(); renderMisCobros(); renderFiadosVendedor(); renderDashboard(); renderNotificaciones();
+  mostrarReciboPago(a, fiados.find(x => x.id === a.fiadoId));
   toast('Cobro rechazado', 'error');
 }
 function renderAbonosPendientes() {
@@ -1331,12 +1413,12 @@ function registrarGarantia() {
   if (p) {
     if (accion === 'reingresar') {
       p.stock += cantidad;
-      movimientos.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'entrada', cantidad, motivo: 'Garantía: '+motivo });
+      movimientos.unshift({ id: nextId(movimientos), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'entrada', cantidad, motivo: 'Garantía: '+motivo });
     } else if (accion === 'dañado') {
-      movimientos.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'ajuste', cantidad, motivo: 'Garantía dañada: '+motivo });
+      movimientos.unshift({ id: nextId(movimientos), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'ajuste', cantidad, motivo: 'Garantía dañada: '+motivo });
     }
   }
-  garantias.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), ventaId: ventaSeleccionada.id, cliente: ventaSeleccionada.cliente || 'Cliente', producto: item.nombre, cantidad, motivo, accion, obs, estado: accion === 'dañado' ? 'producto dañado' : 'resuelta' });
+  garantias.unshift({ id: nextId(garantias), fecha: new Date().toLocaleString(), ventaId: ventaSeleccionada.id, cliente: ventaSeleccionada.cliente || 'Cliente', producto: item.nombre, cantidad, motivo, accion, obs, estado: accion === 'dañado' ? 'producto dañado' : 'resuelta' });
   guardar(); renderGarantias(); renderDashboard(); renderNotificaciones();
   msg.className='msg msg-ok'; msg.textContent='Garantía registrada';
   setTimeout(()=> msg.className='msg', 3000);
@@ -1381,7 +1463,7 @@ function guardarProveedor() {
     direccion: document.getElementById('pr-direccion').value.trim()
   };
   if (editandoProvId) Object.assign(proveedores.find(x => x.id === editandoProvId), data);
-  else proveedores.push({ id: Date.now(), ...data });
+  else proveedores.push({ id: nextId(proveedores), ...data });
   guardar(); cancelarEdicionProv(); renderProveedores(); renderSelects();
   msg.className='msg msg-ok'; msg.textContent='Proveedor guardado';
   setTimeout(()=> msg.className='msg', 2500);
@@ -1436,10 +1518,10 @@ function registrarCompraProveedor() {
   const prov = proveedores.find(x => x.id === provId);
   if (!p || !prov) return;
   p.stock += cantidad;
-  movimientos.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'entrada', cantidad, motivo: 'Compra a '+prov.nombre });
+  movimientos.unshift({ id: nextId(movimientos), fecha: new Date().toLocaleString(), producto: p.nombre, tipo: 'entrada', cantidad, motivo: 'Compra a '+prov.nombre });
   const total = cantidad * precio;
   if (!pagado) {
-    deudas.unshift({ id: Date.now(), fecha: new Date().toLocaleString(), proveedorId: provId, proveedorNombre: prov.nombre, productoNombre: p.nombre, cantidad, total, saldo: total, obs, abonos: [] });
+    deudas.unshift({ id: nextId(deudas), fecha: new Date().toLocaleString(), proveedorId: provId, proveedorNombre: prov.nombre, productoNombre: p.nombre, cantidad, total, saldo: total, obs, abonos: [] });
   }
   guardar();
   renderProveedores(); renderDeudas(); renderSelects(); renderDashboard(); renderMovimientos(); renderNotificaciones();

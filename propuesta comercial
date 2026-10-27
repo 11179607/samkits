@@ -1,0 +1,540 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propuesta Comercial · SAMKITS</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --azul:#123b8b; --azul-2:#2067d2; --azul-suave:#edf4ff; --azul-borde:#dfeafc;
+    --verde:#1f9d57; --verde-suave:#e9f9f1; --verde-borde:#cfeedd;
+    --naranja:#d97706; --naranja-suave:#fff3df; --naranja-borde:#f5d9a7;
+    --gris-900:#1f2937; --gris-700:#475569; --gris-500:#64748b; --gris-200:#e2e8f0; --gris-100:#f8fafc;
+    --rojo:#c62828; --rojo-suave:#feebeb;
+    --blanco:#ffffff;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background:linear-gradient(180deg, #f4f8ff 0%, #eef4ff 100%);
+    color: var(--gris-900);
+    line-height:1.65;
+    font-size:15px;
+  }
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--blanco);
+    box-shadow: 0 12px 40px rgba(18, 59, 139, 0.12);
+  }
+  .portada {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-2) 100%);
+    color: var(--blanco);
+    min-height: 100vh;
+    padding: 80px 60px 50px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    page-break-after: always;
+  }
+  .logo {
+    width:96px; height:96px; border-radius:28px;
+    background: var(--blanco); color: var(--azul); font-size:46px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; margin-bottom:24px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+  }
+  .portada h1 { font-size:46px; letter-spacing:1px; margin-bottom:8px; }
+  .portada h2 { font-size:22px; font-weight:400; opacity:0.9; margin-bottom:36px; }
+  .propuesta-titulo {
+    display:inline-block; border-top:2px solid rgba(255,255,255,0.35); border-bottom:2px solid rgba(255,255,255,0.35);
+    padding:18px 38px; font-size:30px; font-weight:700; margin-bottom:24px;
+  }
+  .info-box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 16px; padding: 20px 32px; width:min(100%, 560px);
+    backdrop-filter: blur(5px);
+  }
+  .info-box strong {
+    display:block; font-size:11px; letter-spacing:1.2px; opacity:0.72; text-transform:uppercase; margin-bottom:4px;
+  }
+  .info-box span { font-size:17px; font-weight:600; }
+  .contenido { padding: 60px 56px 40px; }
+  .indice {
+    padding: 42px;
+    margin-bottom: 36px;
+    border: 1px solid var(--gris-200);
+    border-radius: 16px;
+    background: var(--gris-100);
+    page-break-after: always;
+  }
+  .indice h2 { color: var(--azul); margin-bottom: 18px; font-size: 24px; }
+  .indice ol { padding-left: 24px; }
+  .indice li { padding: 6px 0; color: var(--gris-700); }
+  .indice a { color: var(--azul); text-decoration: none; }
+  .section { margin-bottom: 42px; }
+  .section-heading {
+    display:flex; align-items:center; gap:12px; margin-bottom:16px;
+    padding-bottom:12px; border-bottom:2px solid var(--azul-borde);
+    color: var(--azul);
+  }
+  .numero {
+    width:38px; height:38px; border-radius:12px; background: var(--azul);
+    color: var(--blanco); display:flex; align-items:center; justify-content:center; font-weight:800;
+  }
+  .section-heading h2 { font-size:24px; }
+  .section h3 { font-size:18px; color: var(--gris-900); margin: 16px 0 10px; }
+  .section p, .section li { color: var(--gris-700); }
+  .section ul { list-style:none; padding-left:0; }
+  .section ul li {
+    position:relative; padding:8px 0 8px 28px; border-bottom:1px solid #edf2f7;
+  }
+  .section ul li::before {
+    content:'✓'; position:absolute; left:0; top:8px; width:18px; height:18px;
+    border-radius:50%; background: var(--azul-suave); color: var(--azul); font-weight:800;
+    font-size:12px; display:flex; align-items:center; justify-content:center;
+  }
+  .resumen-box {
+    background: var(--azul-suave); border-left: 4px solid var(--azul); padding:18px 20px; border-radius:10px;
+    margin:18px 0;
+  }
+  .resumen-box strong { color: var(--azul); }
+  .alert-box {
+    background: var(--naranja-suave); border-left:4px solid var(--naranja); padding:18px 20px; border-radius:10px;
+    margin:18px 0;
+  }
+  .modulos-grid {
+    display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; margin-top:18px;
+  }
+  .modulo {
+    background: var(--blanco); border:1px solid var(--gris-200); border-radius:14px; padding:18px 16px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
+  }
+  .modulo .icono { font-size:24px; margin-bottom:6px; }
+  .modulo h4 { color: var(--azul); font-size:16px; margin-bottom:6px; }
+  .modulo p { font-size:13px; color: var(--gris-500); }
+  table {
+    width:100%; border-collapse: collapse; margin:18px 0; font-size:14px;
+  }
+  th {
+    background: var(--azul); color: var(--blanco); text-align:left; padding:12px 14px; font-size:13px; font-weight:700;
+  }
+  td {
+    padding:12px 14px; border-bottom:1px solid var(--gris-200); vertical-align:top;
+  }
+  tbody tr:nth-child(even) { background: var(--gris-100); }
+  .tabla-total td { background: var(--azul-suave); color: var(--azul); font-weight:700; }
+  .valor-card {
+    background: linear-gradient(135deg, var(--azul) 0%, var(--azul-2) 100%); color: var(--blanco);
+    border-radius: 20px; padding: 28px 24px; text-align:center; margin:18px 0 20px;
+    box-shadow: 0 18px 40px rgba(18, 59, 139, 0.22);
+  }
+  .valor-card .label { font-size:12px; letter-spacing:1.6px; text-transform:uppercase; opacity:0.8; }
+  .valor-card .precio { font-size:46px; font-weight:800; margin:8px 0; }
+  .valor-card .precio small { font-size:20px; font-weight:600; }
+  .valor-card .nota { font-size:13px; opacity:0.88; }
+  .dos-columnas { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:16px; }
+  .mini-card {
+    border:2px solid var(--azul-borde); border-radius:14px; padding:18px 16px; text-align:center; background:#fff;
+  }
+  .mini-card .cabeza { font-size:11px; text-transform:uppercase; letter-spacing:1.3px; color: var(--gris-500); }
+  .mini-card .monto { font-size:28px; font-weight:800; color: var(--azul); margin-top:6px; }
+  .mini-card .desc { font-size:12px; color: var(--gris-500); margin-top:4px; }
+  .timeline { position:relative; margin-left:18px; padding-left:18px; }
+  .timeline:before {
+    content:''; position:absolute; left:6px; top:6px; bottom:8px; width:3px; background: var(--azul-borde);
+    border-radius: 4px;
+  }
+  .timeline-item { position:relative; padding:12px 0 12px 20px; }
+  .timeline-item:before {
+    content:''; position:absolute; left:-20px; top:18px; width:14px; height:14px; border-radius:50%; background: var(--azul); border:3px solid var(--blanco); box-shadow:0 0 0 2px var(--azul);
+  }
+  .timeline-item h4 { color: var(--azul); margin-bottom:4px; font-size:16px; }
+  .timeline-item p { font-size:13px; color: var(--gris-500); }
+  .term-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+  .term-card {
+    border:1px solid var(--gris-200); border-radius:12px; padding:14px 16px; background: var(--gris-100);
+  }
+  .term-card strong { color: var(--azul); display:block; margin-bottom:6px; }
+  .term-card p { font-size:13px; color: var(--gris-500); }
+  .footer {
+    background: var(--gris-900); color: var(--blanco); padding: 52px 48px; text-align:center; page-break-before:always;
+  }
+  .footer h3 { font-size:26px; margin-bottom:10px; }
+  .footer p { color: rgba(255,255,255,0.8); }
+  .footer .contacto { margin-top:18px; font-size:15px; }
+  .firma { margin-top:24px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.18); font-size:13px; opacity:0.8; }
+  @media print {
+    body { background:#fff; }
+    .container { box-shadow:none; }
+    .portada { min-height: auto; }
+    .section { page-break-inside: avoid; }
+  }
+  @media (max-width: 768px) {
+    .modulos-grid, .dos-columnas, .term-list { grid-template-columns: 1fr; }
+    .portada { padding: 54px 24px 36px; }
+    .contenido { padding: 42px 24px 30px; }
+    .propuesta-titulo { font-size: 24px; padding:14px 20px; }
+    .valor-card .precio { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="portada">
+    <div class="logo">S</div>
+    <h1>SAMKITS</h1>
+    <h2>Accesorios para celulares</h2>
+    <div class="propuesta-titulo">Propuesta Comercial<br>Sistema de Inventario y Ventas</div>
+    <div class="info-box">
+      <strong>Preparado por</strong>
+      <span>Marlon Carabali · Proyectos MCE</span>
+      <br><br>
+      <strong>Fecha</strong>
+      <span>27 de octubre de 2026</span>
+      <br><br>
+      <strong>Desarrollador del sistema</strong>
+      <span>Marlon Carabali · Proyectos MCE</span>
+    </div>
+  </div>
+
+  <div class="contenido">
+    <nav class="indice" aria-label="Índice de la propuesta">
+      <h2>Índice</h2>
+      <ol>
+        <li><a href="#resumen-ejecutivo">Resumen ejecutivo</a></li>
+        <li><a href="#situacion-actual">Situación actual y necesidad</a></li>
+        <li><a href="#solucion">Nuestra solución</a></li>
+        <li><a href="#beneficios">Beneficios concretos</a></li>
+        <li><a href="#funciones">Funciones destacadas del sistema</a></li>
+        <li><a href="#implementacion">Plan de implementación</a></li>
+        <li><a href="#inversion">Inversión propuesta</a></li>
+        <li><a href="#terminos">Términos y abreviaturas</a></li>
+        <li><a href="#compromiso">Compromiso y garantía</a></li>
+        <li><a href="#cierre">Cierre</a></li>
+      </ol>
+    </nav>
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="resumen-ejecutivo">1</div>
+        <h2>Resumen ejecutivo</h2>
+      </div>
+      <p>Samkits requiere un sistema moderno para controlar inventario, ventas, fiados, proveedores, garantías y cierre de caja de forma organizada, rápida y segura. Esta propuesta presenta una solución web diseñada para optimizar la operación diaria del negocio, reducir errores manuales y facilitar la toma de decisiones con base en información real.</p>
+      <div class="resumen-box">
+        <strong>Objetivo principal:</strong> digitalizar y centralizar la operación comercial del negocio para mejorar control, reducir pérdidas, acelerar procesos y proyectar una imagen más profesional frente a clientes y proveedores.
+      </div>
+      <p>La solución contempla un sistema accesible desde computador, tablet y celular, con roles diferenciados para administrador y vendedor. Todo el flujo comercial se gestiona desde una sola plataforma, evitando la dispersión de datos en cuadernos, hojas de cálculo o registros manuales.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="situacion-actual">2</div>
+        <h2>Situación actual y necesidad</h2>
+      </div>
+      <p>En negocios de accesorios para celulares, la operación diaria involucra varias variables simultáneas: ventas al contado, ventas a crédito, control del stock, manejo de proveedores, cobros, fiados, garantías y cierre de caja. Cuando estas actividades se gestionan de forma manual, se presentan problemas como:</p>
+      <ul>
+        <li>Inventario desactualizado y posible agotamiento de stock sin aviso.</li>
+        <li>Fiados sin seguimiento claro y sin control de cuotas.</li>
+        <li>Ventas sin comprobante formal para el cliente.</li>
+        <li>Pérdida de tiempo en cálculos de cobros, intereses y saldo.</li>
+        <li>Falta de reportes para saber cuánto se vendió, cuánto se debe y cuánto se cobró.</li>
+        <li>Desorden en la información de proveedores y compras.</li>
+      </ul>
+      <div class="alert-box">
+        <strong>Importante:</strong> la falta de control operativo no solo afecta ventas, sino también la confianza del cliente y la salud financiera del negocio. Un sistema estructurado ayuda a prevenir pérdidas, mejorar la atención y aumentar la previsibilidad del negocio.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="solucion">3</div>
+        <h2>Nuestra solución</h2>
+      </div>
+      <p>Se propone una solución web completa, moderna y adaptable, con acceso desde cualquier dispositivo y con permisos diferenciados para administración y ventas. La plataforma centraliza los procesos del negocio y facilita realizar tareas operativas en pocos pasos.</p>
+
+      <h3>Módulos y funcionalidades incluidas</h3>
+      <div class="modulos-grid">
+        <div class="modulo">
+          <div class="icono">📦</div>
+          <h4>Inventario</h4>
+          <p>Registro de productos con SKU, nombre, categoría, proveedor, compra, venta, stock inicial y stock mínimo.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">💰</div>
+          <h4>Ventas</h4>
+          <p>Generación de ventas de contado y crédito con cálculo automático de subtotal, interés, cuotas y total final.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🤝</div>
+          <h4>Fiados</h4>
+          <p>Control de clientes con deuda, saldo pendiente, cuotas, historial de abonos y progreso visual del pago.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">💵</div>
+          <h4>Abonos y cobros</h4>
+          <p>El vendedor registra el cobro; el administrador puede confirmarlo o rechazarlo antes de cerrar la operación.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🛡️</div>
+          <h4>Garantías</h4>
+          <p>Vinculación de garantías con la venta, identificación del producto, motivo del problema y tratamiento del caso.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🏭</div>
+          <h4>Proveedores</h4>
+          <p>Gestión de compras, cuentas por pagar y abonos a proveedores con historial de deuda.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">👥</div>
+          <h4>Clientes</h4>
+          <p>Historial de compras por cliente, total gastado, número de visitas y deuda actual.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">📊</div>
+          <h4>Reportes y cierre</h4>
+          <p>Resumen del día, ventas por periodo, top de productos, cierre de caja y exportación a Excel/PDF.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🔔</div>
+          <h4>Alertas y notificaciones</h4>
+          <p>Notificaciones por stock bajo, fiados vencidos, cobros pendientes y deudas por pagar.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🖨️</div>
+          <h4>Recibos</h4>
+          <p>Emisión e impresión de recibos para ventas y cobros, con información clara para clientes y vendedor.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">🔐</div>
+          <h4>Roles y permisos</h4>
+          <p>Control de acceso por rol: administrador con permisos completos y vendedor con acceso operativo definido.</p>
+        </div>
+        <div class="modulo">
+          <div class="icono">📱</div>
+          <h4>Diseño responsive</h4>
+          <p>La interfaz funciona en computador, tablet y celular, con diseño amigable y fácil de usar.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="beneficios">4</div>
+        <h2>Beneficios concretos</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Beneficio</th>
+            <th>Impacto esperado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mayor control del inventario</td>
+            <td>Reducir pérdidas por faltantes, roturas, ventas sin registro y compras duplicadas.</td>
+          </tr>
+          <tr>
+            <td>Seguimiento estructurado de fiados</td>
+            <td>Mejor recuperación de cartera y menor riesgo de cobros olvidados.</td>
+          </tr>
+          <tr>
+            <td>Procesos más rápidos</td>
+            <td>Ahorro de tiempo en cálculos, registro y revisión de operaciones del día.</td>
+          </tr>
+          <tr>
+            <td>Visibilidad operativa real</td>
+            <td>Decisiones de compra, venta y cobro basadas en datos concretos.</td>
+          </tr>
+          <tr>
+            <td>Recibos profesionales</td>
+            <td>Mayor confianza del cliente y mejor imagen del negocio.</td>
+          </tr>
+          <tr>
+            <td>Mejor control financiero</td>
+            <td>Se entiende cuánto entra, cuánto sale, cuánto queda por cobrar y por pagar.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="funciones">5</div>
+        <h2>Funciones destacadas del sistema</h2>
+      </div>
+      <p>El sistema propuesto incluye todas las funciones necesarias para operar un negocio de accesorios para celulares con estructura comercial y financiera clara. A continuación, un resumen funcional:</p>
+      <ul>
+        <li><strong>Gestión de productos:</strong> carga de información básica, categoría, costo de compra, precio de venta, stock y mínimo.</li>
+        <li><strong>Registro de movimientos:</strong> entradas, salidas y ajustes de inventario con motivo de la operación.</li>
+        <li><strong>Ventas al contado y a crédito:</strong> cálculo de total, intereses y cuotas según las condiciones definidas.</li>
+        <li><strong>Fiados y cobros:</strong> seguimiento del saldo, historial y estado del cliente en tiempo real.</li>
+        <li><strong>Confirmación de cobros:</strong> la venta queda registrada y el sistema marca el cobro pendiente hasta confirmación del administrador.</li>
+        <li><strong>Garantías:</strong> control de devoluciones, daños y reingreso del producto al inventario cuando aplica.</li>
+        <li><strong>Proveedores y compras:</strong> control de deuda y pagos por compra de mercadería.</li>
+        <li><strong>Clientes frecuentes:</strong> historial comercial por cliente para conocer su comportamiento de compra.</li>
+        <li><strong>Dashboard y gráficos:</strong> indicadores del día, ventas recientes, top productos y alertas.</li>
+        <li><strong>Exportación:</strong> descarga de reportes en Excel/CSV y respaldo en formato JSON.</li>
+        <li><strong>Notificaciones:</strong> avisos automáticos cuando hay stock bajo o cobros pendientes.</li>
+        <li><strong>Recibos y comprobantes:</strong> impresión o almacenamiento del comprobante de venta o cobro.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="implementacion">6</div>
+        <h2>Plan de implementación</h2>
+      </div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>Fase 1 · Diseño y configuración inicial</h4>
+          <p>Personalización del sistema con nombre del negocio, logo, colores y accesos de usuario. Se define el rol administrador y el rol vendedor.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Fase 2 · Carga de inventario y datos base</h4>
+          <p>Se registra la información de productos, proveedores, clientes y precios actuales para poner en marcha la operativa.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Fase 3 · Capacitación del equipo</h4>
+          <p>Se realiza entrenamiento práctico para que el personal aprenda cómo vender, registrar cobros, gestionar fiados y consultar reportes.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Fase 4 · Puesta en marcha y soporte</h4>
+          <p>Se activa la operación real y se acompaña la primera semana para asegurar que todo quede funcionando correctamente.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="inversion">7</div>
+        <h2>Inversión propuesta</h2>
+      </div>
+      <div class="valor-card">
+        <div class="label">Implementación completa</div>
+        <div class="precio"><small>$</small>1.500.000 <small>COP</small></div>
+        <div class="nota">Pago único · Incluye sistema, personalización, soporte inicial y capacitación.</div>
+      </div>
+
+      <div class="dos-columnas">
+        <div class="mini-card">
+          <div class="cabeza">Primer pago</div>
+          <div class="monto">$750.000</div>
+          <div class="desc">50% al iniciar el proyecto</div>
+        </div>
+        <div class="mini-card">
+          <div class="cabeza">Segundo pago</div>
+          <div class="monto">$750.000</div>
+          <div class="desc">50% al entregar la solución</div>
+        </div>
+      </div>
+
+      <h3>¿Qué incluye esta inversión?</h3>
+      <ul>
+        <li>Instalación y configuración del sistema completo.</li>
+        <li>Diseño personalizado con el nombre y marca del negocio.</li>
+        <li>Carga inicial del inventario.</li>
+        <li>Configuración de roles y permisos.</li>
+        <li>Capacitación del equipo.</li>
+        <li>Soporte técnico inicial por 30 días.</li>
+        <li>Respaldo de datos y reportes base.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="terminos">8</div>
+        <h2>Términos y abreviaturas</h2>
+      </div>
+      <p>Para que el cliente comprenda mejor la operación del sistema, es importante aclarar algunos términos que aparecen con frecuencia en la gestión comercial:</p>
+      <div class="term-list">
+        <div class="term-card">
+          <strong>SKU</strong>
+          <p>Es el código único que identifica cada producto dentro del inventario. Sirve para distinguir artículos similares con facilidad.</p>
+        </div>
+        <div class="term-card">
+          <strong>Stock</strong>
+          <p>Cantidad disponible de un producto en almacén o bodega para vender.</p>
+        </div>
+        <div class="term-card">
+          <strong>Stock mínimo</strong>
+          <p>La cantidad mínima recomendada para reponer un producto antes de que se agote.</p>
+        </div>
+        <div class="term-card">
+          <strong>Fiado</strong>
+          <p>Venta a crédito, donde el cliente recibe el producto y paga en cuotas o en un tiempo posterior.</p>
+        </div>
+        <div class="term-card">
+          <strong>Saldo</strong>
+          <p>Dinero que falta por pagar dentro de una venta o deuda.</p>
+        </div>
+        <div class="term-card">
+          <strong>Cuota</strong>
+          <p>Parte del valor total que se paga en un periodo determinado según el acuerdo con el cliente.</p>
+        </div>
+        <div class="term-card">
+          <strong>Abono</strong>
+          <p>Pago parcial que se realiza sobre la deuda de un fiado o crédito.</p>
+        </div>
+        <div class="term-card">
+          <strong>Admin</strong>
+          <p>Rol de administrador con permisos para gestionar todo el sistema, confirmar cobros y revisar reportes.</p>
+        </div>
+        <div class="term-card">
+          <strong>Vendedor</strong>
+          <p>Rol operativo que puede registrar ventas, cobros y consultar información necesaria para vender.</p>
+        </div>
+        <div class="term-card">
+          <strong>Dashboard</strong>
+          <p>Panel principal con indicadores rápidos del negocio: ventas, stock, deudas, cobros y alertas.</p>
+        </div>
+        <div class="term-card">
+          <strong>CSV / Excel</strong>
+          <p>Formato para exportar información tabular para análisis o archivo externo.</p>
+        </div>
+        <div class="term-card">
+          <strong>PDF</strong>
+          <p>Formato de documento portable para imprimir o compartir resultados.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="compromiso">9</div>
+        <h2>Compromiso y garantía</h2>
+      </div>
+      <ul>
+        <li>Se entrega una solución funcional, pensada para la operación real del negocio.</li>
+        <li>Se brinda apoyo técnico durante la primera etapa de uso.</li>
+        <li>Se realiza capacitación para que el equipo use el sistema con confianza.</li>
+        <li>Se prioriza la simplicidad, la rapidez y la claridad para asegurar adopción por parte del personal.</li>
+        <li>Se ofrece respaldo de la información durante el periodo de implementación y soporte inicial.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <div class="section-heading">
+        <div class="numero" id="cierre">10</div>
+        <h2>Cierre</h2>
+      </div>
+      <p>Samkits necesita una herramienta que permita controlar su operación sin depender de procesos manuales y sin perder trazabilidad. La propuesta presentada responde directamente a esas necesidades, aportando control, organización, rapidez y profesionalismo en cada etapa del proceso comercial.</p>
+      <div class="resumen-box">
+        <strong>Conclusión:</strong> este sistema no solo organiza la operación del negocio, sino que también fortalece la toma de decisiones, mejora la gestión financiera y permite crecer con mayor seguridad y control.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <h3>SAMKITS</h3>
+    <p>Propuesta comercial para sistema de inventario, ventas y administración.</p>
+    <div class="contacto">
+      <p>Desarrollado por Marlon Carabali · Proyectos MCE</p>
+    </div>
+    <div class="firma">Documento preparado para revisión y aprobación del cliente.</div>
+  </div>
+</div>
+</body>
+</html>
